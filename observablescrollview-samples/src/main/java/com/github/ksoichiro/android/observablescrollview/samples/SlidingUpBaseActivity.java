@@ -164,11 +164,11 @@ public abstract class SlidingUpBaseActivity<S extends Scrollable> extends BaseAc
     protected abstract S createScrollable();
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

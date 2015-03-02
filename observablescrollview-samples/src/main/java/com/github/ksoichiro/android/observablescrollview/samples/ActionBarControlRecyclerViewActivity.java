@@ -23,6 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 
 public class ActionBarControlRecyclerViewActivity extends BaseActivity implements ObservableScrollViewCallbacks {
 
@@ -39,11 +40,11 @@ public class ActionBarControlRecyclerViewActivity extends BaseActivity implement
     }
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

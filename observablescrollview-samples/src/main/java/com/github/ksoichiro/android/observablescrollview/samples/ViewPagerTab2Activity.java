@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.github.ksoichiro.android.observablescrollview.samples;
 
 import android.os.Bundle;
@@ -22,7 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.view.MotionEvent;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
@@ -30,7 +29,6 @@ import android.widget.FrameLayout;
 import com.github.ksoichiro.android.observablescrollview.CacheFragmentStatePagerAdapter;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
-import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
 import com.github.ksoichiro.android.observablescrollview.Scrollable;
 import com.github.ksoichiro.android.observablescrollview.TouchInterceptionFrameLayout;
 import com.google.samples.apps.iosched.ui.widget.SlidingTabLayout;
@@ -45,7 +43,7 @@ import com.nineoldandroids.view.ViewHelper;
  * https://github.com/google/iosched
  */
 public class ViewPagerTab2Activity extends BaseActivity implements ObservableScrollViewCallbacks {
-
+    private static final String TAG = ViewPagerTab2Activity.class.getSimpleName();
     private View mToolbarView;
     private TouchInterceptionFrameLayout mInterceptionLayout;
     private ViewPager mPager;
@@ -80,84 +78,94 @@ public class ViewPagerTab2Activity extends BaseActivity implements ObservableScr
         ViewConfiguration vc = ViewConfiguration.get(this);
         mSlop = vc.getScaledTouchSlop();
         mInterceptionLayout = (TouchInterceptionFrameLayout) findViewById(R.id.container);
-        mInterceptionLayout.setScrollInterceptionListener(mInterceptionListener);
+        //        mInterceptionLayout.setScrollInterceptionListener(mInterceptionListener);
     }
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
+        Log.i(TAG, "onScrollChanged{" + scrollY + ", " + firstScroll + ", " + dragging + "}");
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
+        Log.i(TAG, "onDownMotionEvent");
     }
 
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+        Log.i(TAG, "onUpOrCancelMotionEvent{" + scrollState + "}");
         if (!mScrolled) {
             // This event can be used only when TouchInterceptionFrameLayout
             // doesn't handle the consecutive events.
-            adjustToolbar(scrollState);
+            //adjustToolbar(scrollState);
         }
     }
-
-    private TouchInterceptionFrameLayout.TouchInterceptionListener mInterceptionListener = new TouchInterceptionFrameLayout.TouchInterceptionListener() {
-        @Override
-        public boolean shouldInterceptTouchEvent(MotionEvent ev, boolean moving, float diffX, float diffY) {
-            if (!mScrolled && mSlop < Math.abs(diffX) && Math.abs(diffY) < Math.abs(diffX)) {
-                // Horizontal scroll is maybe handled by ViewPager
-                return false;
-            }
-
-            Scrollable scrollable = getCurrentScrollable();
-            if (scrollable == null) {
-                mScrolled = false;
-                return false;
-            }
-
-            // If interceptionLayout can move, it should intercept.
-            // And once it begins to move, horizontal scroll shouldn't work any longer.
-            int toolbarHeight = mToolbarView.getHeight();
-            int translationY = (int) ViewHelper.getTranslationY(mInterceptionLayout);
-            boolean scrollingUp = 0 < diffY;
-            boolean scrollingDown = diffY < 0;
-            if (scrollingUp) {
-                if (translationY < 0) {
-                    mScrolled = true;
-                    mLastScrollState = ScrollState.UP;
-                    return true;
-                }
-            } else if (scrollingDown) {
-                if (-toolbarHeight < translationY) {
-                    mScrolled = true;
-                    mLastScrollState = ScrollState.DOWN;
-                    return true;
-                }
-            }
-            mScrolled = false;
-            return false;
-        }
-
-        @Override
-        public void onDownMotionEvent(MotionEvent ev) {
-        }
-
-        @Override
-        public void onMoveMotionEvent(MotionEvent ev, float diffX, float diffY) {
-            float translationY = ScrollUtils.getFloat(ViewHelper.getTranslationY(mInterceptionLayout) + diffY, -mToolbarView.getHeight(), 0);
-            ViewHelper.setTranslationY(mInterceptionLayout, translationY);
-            if (translationY < 0) {
-                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mInterceptionLayout.getLayoutParams();
-                lp.height = (int) (-translationY + getScreenHeight());
-                mInterceptionLayout.requestLayout();
-            }
-        }
-
-        @Override
-        public void onUpOrCancelMotionEvent(MotionEvent ev) {
-            mScrolled = false;
-            adjustToolbar(mLastScrollState);
-        }
-    };
+    //
+    //    private TouchInterceptionFrameLayout.TouchInterceptionListener mInterceptionListener = new TouchInterceptionFrameLayout
+    // .TouchInterceptionListener() {
+    //        @Override
+    //        public boolean shouldInterceptTouchEvent(MotionEvent ev, boolean moving, float diffX, float diffY) {
+    //            Log.i(TAG, "shouldInterceptTouchEvent. moving:" + moving + ", diffX:" + diffX + ", diffY:" + diffY);
+    //            if (!mScrolled && mSlop < Math.abs(diffX) && Math.abs(diffY) < Math.abs(diffX)) {
+    //                // Horizontal scroll is maybe handled by ViewPager
+    //                return false;
+    //            }
+    //
+    //            Scrollable scrollable = getCurrentScrollable();
+    //            if (scrollable == null) {
+    //                mScrolled = false;
+    //                return false;
+    //            }
+    //
+    //            // If interceptionLayout can move, it should intercept.
+    //            // And once it begins to move, horizontal scroll shouldn't work any longer.
+    //            int toolbarHeight = mToolbarView.getHeight();
+    //            int translationY = (int) ViewHelper.getTranslationY(mInterceptionLayout);
+    //            boolean scrollingUp = 0 < diffY;
+    //            boolean scrollingDown = diffY < 0;
+    //            if (scrollingUp) {
+    //                if (translationY < 0) {
+    //                    mScrolled = true;
+    //                    mLastScrollState = ScrollState.UP;
+    //                    Log.v(TAG, "scrolled up");
+    //                    return true;
+    //                }
+    //            } else if (scrollingDown) {
+    //                if (-toolbarHeight < translationY) {
+    //                    mScrolled = true;
+    //                    mLastScrollState = ScrollState.DOWN;
+    //                    Log.v(TAG, "scrolled down");
+    //                    return true;
+    //                }
+    //            }
+    //            mScrolled = false;
+    //            return false;
+    //        }
+    //
+    //        @Override
+    //        public void onDownMotionEvent(MotionEvent ev) {
+    //        }
+    //
+    //        @Override
+    //        public void onMoveMotionEvent(MotionEvent ev, float diffX, float diffY) {
+    //            Log.i(TAG, "onMoveMotionEvent: diffX:" + diffX + ", diffY:" + diffY);
+    //            float translationY = ScrollUtils.getFloat(ViewHelper.getTranslationY(mInterceptionLayout) + diffY,
+    // -mToolbarView.getHeight(), 0);
+    //            ViewHelper.setTranslationY(mInterceptionLayout, translationY);
+    //            if (translationY < 0) {
+    //                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mInterceptionLayout.getLayoutParams();
+    //                lp.height = (int) (-translationY + getScreenHeight());
+    //                mInterceptionLayout.requestLayout();
+    //            }
+    //        }
+    //
+    //        @Override
+    //        public void onUpOrCancelMotionEvent(MotionEvent ev) {
+    //            Log.i(TAG, "onUpOrCancelMotionEvent");
+    //            mScrolled = false;
+    //            adjustToolbar(mLastScrollState);
+    //        }
+    //    };
 
     private Scrollable getCurrentScrollable() {
         Fragment fragment = getCurrentFragment();
@@ -172,6 +180,8 @@ public class ViewPagerTab2Activity extends BaseActivity implements ObservableScr
     }
 
     private void adjustToolbar(ScrollState scrollState) {
+        Log.i(TAG, "adjustToolbar:" + scrollState.name());
+
         int toolbarHeight = mToolbarView.getHeight();
         final Scrollable scrollable = getCurrentScrollable();
         if (scrollable == null) {
@@ -217,18 +227,19 @@ public class ViewPagerTab2Activity extends BaseActivity implements ObservableScr
         float layoutTranslationY = ViewHelper.getTranslationY(mInterceptionLayout);
         if (layoutTranslationY != toY) {
             ValueAnimator animator = ValueAnimator.ofFloat(ViewHelper.getTranslationY(mInterceptionLayout), toY).setDuration(200);
-            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    float translationY = (float) animation.getAnimatedValue();
-                    ViewHelper.setTranslationY(mInterceptionLayout, translationY);
-                    if (translationY < 0) {
-                        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mInterceptionLayout.getLayoutParams();
-                        lp.height = (int) (-translationY + getScreenHeight());
-                        mInterceptionLayout.requestLayout();
+            animator.addUpdateListener(
+                new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        float translationY = (float) animation.getAnimatedValue();
+                        ViewHelper.setTranslationY(mInterceptionLayout, translationY);
+                        if (translationY < 0) {
+                            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mInterceptionLayout.getLayoutParams();
+                            lp.height = (int) (-translationY + getScreenHeight());
+                            mInterceptionLayout.requestLayout();
+                        }
                     }
-                }
-            });
+                });
             animator.start();
         }
     }
@@ -238,8 +249,10 @@ public class ViewPagerTab2Activity extends BaseActivity implements ObservableScr
      * {@linkplain #createItem(int)} should be modified if you use this example for your app.
      */
     private static class NavigationAdapter extends CacheFragmentStatePagerAdapter {
-
-        private static final String[] TITLES = new String[]{"Applepie", "Butter Cookie", "Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb", "Ice Cream Sandwich", "Jelly Bean", "KitKat", "Lollipop"};
+        private static final String[] TITLES = new String[]{
+            "Applepie", "Butter Cookie", "Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb", "Ice Cream Sandwich",
+            "Jelly Bean", "KitKat", "Lollipop"
+        };
 
         public NavigationAdapter(FragmentManager fm) {
             super(fm);

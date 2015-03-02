@@ -13,3 +13,6 @@ aarDependencies/
 .project
 .classpath
 project.properties
+vn-repo/
+vn-repo/**
+observablescrollview/mvn_repo

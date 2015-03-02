@@ -78,7 +78,7 @@ public class ObservableScrollView extends ScrollView implements Scrollable {
         if (mCallbacks != null) {
             mScrollY = t;
 
-            mCallbacks.onScrollChanged(t, mFirstScroll, mDragging);
+            mCallbacks.onScrollChanged(this, t, mFirstScroll, mDragging);
             if (mFirstScroll) {
                 mFirstScroll = false;
             }
@@ -110,7 +110,7 @@ public class ObservableScrollView extends ScrollView implements Scrollable {
                     // Also, applications might implement initialization codes to onDownMotionEvent,
                     // so call it here.
                     mFirstScroll = mDragging = true;
-                    mCallbacks.onDownMotionEvent();
+                    mCallbacks.onDownMotionEvent(this);
                     break;
             }
         }
@@ -202,6 +202,11 @@ public class ObservableScrollView extends ScrollView implements Scrollable {
     @Override
     public void scrollVerticallyTo(int y) {
         scrollTo(0, y);
+    }
+
+    @Override
+    public void scrollVerticallyBy(final int y) {
+        scrollBy(0, y);
     }
 
     @Override

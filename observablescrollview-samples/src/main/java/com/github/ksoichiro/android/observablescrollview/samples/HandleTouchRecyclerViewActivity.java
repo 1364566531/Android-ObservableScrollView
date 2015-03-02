@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 
 import java.util.ArrayList;
 
@@ -60,12 +61,12 @@ public class HandleTouchRecyclerViewActivity extends BaseActivity implements Obs
     }
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
         Log.v(TAG, "onScrollChanged: scrollY: " + scrollY + " firstScroll: " + firstScroll + " dragging: " + dragging);
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
         Log.v(TAG, "onDownMotionEvent");
     }
 

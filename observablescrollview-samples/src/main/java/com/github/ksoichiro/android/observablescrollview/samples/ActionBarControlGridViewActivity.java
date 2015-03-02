@@ -22,6 +22,7 @@ import android.support.v7.app.ActionBar;
 import com.github.ksoichiro.android.observablescrollview.ObservableGridView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 
 public class ActionBarControlGridViewActivity extends BaseActivity implements ObservableScrollViewCallbacks {
 
@@ -36,11 +37,11 @@ public class ActionBarControlGridViewActivity extends BaseActivity implements Ob
     }
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

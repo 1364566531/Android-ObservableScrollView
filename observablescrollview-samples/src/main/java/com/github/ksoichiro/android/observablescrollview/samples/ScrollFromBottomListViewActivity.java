@@ -26,6 +26,7 @@ import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.ViewPropertyAnimator;
 
@@ -76,7 +77,7 @@ public class ScrollFromBottomListViewActivity extends BaseActivity implements Ob
     }
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
         int toolbarHeight = mToolbarView.getHeight();
         if (dragging || scrollY < toolbarHeight) {
             if (firstScroll) {
@@ -92,7 +93,7 @@ public class ScrollFromBottomListViewActivity extends BaseActivity implements Ob
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

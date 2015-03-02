@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.github.ksoichiro.android.observablescrollview.samples;
 
 import android.os.Bundle;
@@ -22,6 +21,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import com.github.ksoichiro.android.observablescrollview.CacheFragmentStatePagerAdapter;
@@ -41,12 +41,13 @@ import com.nineoldandroids.view.ViewPropertyAnimator;
  * https://github.com/google/iosched
  */
 public class ViewPagerTabActivity extends BaseActivity implements ObservableScrollViewCallbacks {
-
+    private static final String TAG = ViewPagerTabActivity.class.getSimpleName();
     private View mHeaderView;
     private View mToolbarView;
     private int mBaseTranslationY;
     private ViewPager mPager;
     private NavigationAdapter mPagerAdapter;
+    private Scrollable mCurrentScrollable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,52 +66,72 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
         SlidingTabLayout slidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
         slidingTabLayout.setCustomTabView(R.layout.tab_indicator, android.R.id.text1);
         slidingTabLayout.setSelectedIndicatorColors(getResources().getColor(R.color.accent));
-        slidingTabLayout.setDistributeEvenly(true);
+        slidingTabLayout.setDistributeEvenly(false);
         slidingTabLayout.setViewPager(mPager);
 
         // When the page is selected, other fragments' scrollY should be adjusted
         // according to the toolbar status(shown/hidden)
-        slidingTabLayout.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int i, float v, int i2) {
-            }
+        slidingTabLayout.setOnPageChangeListener(
+            new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int i, float v, int i2) {
+                }
 
-            @Override
-            public void onPageSelected(int i) {
-                propagateToolbarState(toolbarIsShown());
-            }
+                @Override
+                public void onPageSelected(int i) {
+                    //propagateToolbarState(toolbarIsShown());
+                }
 
-            @Override
-            public void onPageScrollStateChanged(int i) {
-            }
-        });
+                @Override
+                public void onPageScrollStateChanged(int i) {
+                }
+            });
 
         propagateToolbarState(toolbarIsShown());
     }
 
+    private int mLasScrollY = 0;
+    private boolean mScrolled;
+
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
-        if (dragging) {
-            int toolbarHeight = mToolbarView.getHeight();
-            float currentHeaderTranslationY = ViewHelper.getTranslationY(mHeaderView);
-            if (firstScroll) {
-                if (-toolbarHeight < currentHeaderTranslationY) {
-                    mBaseTranslationY = scrollY;
-                }
-            }
-            float headerTranslationY = ScrollUtils.getFloat(-(scrollY - mBaseTranslationY), -toolbarHeight, 0);
-            ViewPropertyAnimator.animate(mHeaderView).cancel();
-            ViewHelper.setTranslationY(mHeaderView, headerTranslationY);
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
+        if (scrollY == 0 || scrollable != mCurrentScrollable) {
+            return;
         }
+
+        if(firstScroll) {
+            mLasScrollY = scrollY;
+            Log.v(TAG, "lastScrollY: " + mLasScrollY);
+            return;
+        }
+
+        int toolbarHeight = mToolbarView.getHeight();
+        float translationY = ViewHelper.getTranslationY(mHeaderView);
+
+        //int delta = scrollY - mBaseTranslationY;
+        int delta = scrollY - mLasScrollY;
+        Log.i(TAG, "onScrollChanged{" + scrollY + ", " + firstScroll + ", " + dragging + "}, delta: " + delta);
+
+        translationY = ScrollUtils.getFloat((translationY - delta), -toolbarHeight, 0);
+        ViewPropertyAnimator.animate(mHeaderView).cancel();
+        ViewHelper.setTranslationY(mHeaderView, translationY);
+
+        mLasScrollY = scrollY;
+        mScrolled = true;
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(Scrollable scrollable) {
+        Log.i(TAG, "onDownMotionEvent");
+        mBaseTranslationY = scrollable.getCurrentScrollY();
+        mLasScrollY = scrollable.getCurrentScrollY();
+        mCurrentScrollable = scrollable;
+        mScrolled = false;
     }
 
     @Override
     public void onUpOrCancelMotionEvent(ScrollState scrollState) {
-        mBaseTranslationY = 0;
+        Log.i(TAG, "onUpOrCancelMotionEvent");
 
         Fragment fragment = getCurrentFragment();
         if (fragment == null) {
@@ -121,36 +142,39 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
             return;
         }
 
-        // ObservableXxxViews have same API
-        // but currently they don't have any common interfaces.
-        adjustToolbar(scrollState, view);
+        if (mScrolled) {
+            adjustToolbar(scrollState, view);
+        }
     }
 
     private void adjustToolbar(ScrollState scrollState, View view) {
+        Log.i(TAG, "adjustToolbar: " + scrollState);
+
         int toolbarHeight = mToolbarView.getHeight();
         final Scrollable scrollView = (Scrollable) view.findViewById(R.id.scroll);
         if (scrollView == null) {
             return;
         }
         int scrollY = scrollView.getCurrentScrollY();
-        if (scrollState == ScrollState.DOWN) {
-            showToolbar();
-        } else if (scrollState == ScrollState.UP) {
-            if (toolbarHeight <= scrollY) {
-                hideToolbar();
-            } else {
-                showToolbar();
-            }
+
+        Log.v(TAG, "scrollY: " + scrollY);
+
+        float translationY = ViewHelper.getTranslationY(mHeaderView);
+        Log.v(TAG, "translationY: " + translationY);
+        Log.v(
+            TAG, "is shown: " + toolbarIsShown()
+                + ", is hidden: " + toolbarIsHidden()
+                + ", toolbar height: " + toolbarHeight);
+
+        if (toolbarIsHidden() || toolbarIsShown()) {
+            // do nothing...
+            propagateToolbarState(toolbarIsShown());
         } else {
-            // Even if onScrollChanged occurs without scrollY changing, toolbar should be adjusted
-            if (toolbarIsShown() || toolbarIsHidden()) {
-                // Toolbar is completely moved, so just keep its state
-                // and propagate it to other pages
-                propagateToolbarState(toolbarIsShown());
-            } else {
-                // Toolbar is moving but doesn't know which to move:
-                // you can change this to hideToolbar()
+
+            if (-translationY < toolbarHeight / 2) {
                 showToolbar();
+            } else {
+                hideToolbar();
             }
         }
     }
@@ -160,6 +184,8 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
     }
 
     private void propagateToolbarState(boolean isShown) {
+        Log.d(TAG, "propagateToolbarState");
+
         int toolbarHeight = mToolbarView.getHeight();
 
         // Set scrollY for the fragments that are not created yet
@@ -191,15 +217,18 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
         if (scrollView == null) {
             return;
         }
+
+        Log.i(TAG, "currentScroll: " + scrollView.getCurrentScrollY() + ", isShown: " + isShown);
+
         if (isShown) {
             // Scroll up
-            if (0 < scrollView.getCurrentScrollY()) {
-                scrollView.scrollVerticallyTo(0);
+            if (scrollView.getCurrentScrollY() < toolbarHeight) {
+                scrollView.scrollVerticallyBy(-toolbarHeight);
             }
         } else {
             // Scroll down (to hide padding)
             if (scrollView.getCurrentScrollY() < toolbarHeight) {
-                scrollView.scrollVerticallyTo(toolbarHeight);
+                scrollView.scrollVerticallyBy(toolbarHeight);
             }
         }
     }
@@ -213,6 +242,7 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
     }
 
     private void showToolbar() {
+        Log.d(TAG, "showToolbar");
         float headerTranslationY = ViewHelper.getTranslationY(mHeaderView);
         if (headerTranslationY != 0) {
             ViewPropertyAnimator.animate(mHeaderView).cancel();
@@ -222,6 +252,7 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
     }
 
     private void hideToolbar() {
+        Log.d(TAG, "showToolbar");
         float headerTranslationY = ViewHelper.getTranslationY(mHeaderView);
         int toolbarHeight = mToolbarView.getHeight();
         if (headerTranslationY != -toolbarHeight) {
@@ -236,9 +267,7 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
      * {@linkplain #createItem(int)} should be modified if you use this example for your app.
      */
     private static class NavigationAdapter extends CacheFragmentStatePagerAdapter {
-
-        private static final String[] TITLES = new String[]{"Applepie", "Butter Cookie", "Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb", "Ice Cream Sandwich", "Jelly Bean", "KitKat", "Lollipop"};
-
+        private static final String[] TITLES = new String[]{"Applepie", "Butter Cookie"};
         private int mScrollY;
 
         public NavigationAdapter(FragmentManager fm) {
@@ -256,7 +285,8 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
             Fragment f;
             final int pattern = position % 3;
             switch (pattern) {
-                case 0: {
+                case 3:
+                case 4:
                     f = new ViewPagerTabScrollViewFragment();
                     if (0 <= mScrollY) {
                         Bundle args = new Bundle();
@@ -264,8 +294,8 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
                         f.setArguments(args);
                     }
                     break;
-                }
-                case 1: {
+                case 0:
+                case 1:
                     f = new ViewPagerTabListViewFragment();
                     if (0 < mScrollY) {
                         Bundle args = new Bundle();
@@ -273,9 +303,7 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
                         f.setArguments(args);
                     }
                     break;
-                }
-                case 2:
-                default: {
+                default:
                     f = new ViewPagerTabRecyclerViewFragment();
                     if (0 < mScrollY) {
                         Bundle args = new Bundle();
@@ -283,7 +311,6 @@ public class ViewPagerTabActivity extends BaseActivity implements ObservableScro
                         f.setArguments(args);
                     }
                     break;
-                }
             }
             return f;
         }

@@ -24,7 +24,7 @@ public class WebViewActivity extends Activity implements ObservableScrollViewCal
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

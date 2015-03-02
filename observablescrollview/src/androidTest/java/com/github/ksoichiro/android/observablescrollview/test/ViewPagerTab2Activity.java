@@ -82,7 +82,7 @@ public class ViewPagerTab2Activity extends ActionBarActivity implements Observab
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

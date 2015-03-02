@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import com.github.ksoichiro.android.observablescrollview.ObservableRecyclerView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 
 public class RecyclerViewActivity extends Activity implements ObservableScrollViewCallbacks {
 
@@ -27,7 +28,7 @@ public class RecyclerViewActivity extends Activity implements ObservableScrollVi
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

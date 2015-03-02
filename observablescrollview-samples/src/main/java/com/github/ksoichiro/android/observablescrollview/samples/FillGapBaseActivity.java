@@ -93,12 +93,12 @@ public abstract class FillGapBaseActivity<S extends Scrollable> extends BaseActi
     protected abstract S createScrollable();
 
     @Override
-    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+    public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
         updateViews(scrollY, true);
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

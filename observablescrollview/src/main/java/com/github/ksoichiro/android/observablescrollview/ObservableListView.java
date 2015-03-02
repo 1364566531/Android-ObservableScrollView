@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.github.ksoichiro.android.observablescrollview;
 
 import android.content.Context;
@@ -31,7 +30,6 @@ import android.widget.ListView;
  * ListView that its scroll position can be observed.
  */
 public class ObservableListView extends ListView implements Scrollable {
-
     // Fields that should be saved onSaveInstanceState
     private int mPrevFirstVisiblePosition;
     private int mPrevFirstVisibleChildHeight = -1;
@@ -39,7 +37,6 @@ public class ObservableListView extends ListView implements Scrollable {
     private int mPrevScrollY;
     private int mScrollY;
     private SparseIntArray mChildrenHeights;
-
     // Fields that don't need to be saved onSaveInstanceState
     private ObservableScrollViewCallbacks mCallbacks;
     private ScrollState mScrollState;
@@ -48,7 +45,6 @@ public class ObservableListView extends ListView implements Scrollable {
     private boolean mIntercepted;
     private MotionEvent mPrevMoveEvent;
     private ViewGroup mTouchInterceptionViewGroup;
-
     private OnScrollListener mOriginalScrollListener;
     private OnScrollListener mScrollListener = new OnScrollListener() {
         @Override
@@ -122,7 +118,7 @@ public class ObservableListView extends ListView implements Scrollable {
                     // Also, applications might implement initialization codes to onDownMotionEvent,
                     // so call it here.
                     mFirstScroll = mDragging = true;
-                    mCallbacks.onDownMotionEvent();
+                    mCallbacks.onDownMotionEvent(this);
                     break;
             }
         }
@@ -182,12 +178,13 @@ public class ObservableListView extends ListView implements Scrollable {
 
                             // Return this onTouchEvent() first and set ACTION_DOWN event for parent
                             // to the queue, to keep events sequence.
-                            post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    parent.dispatchTouchEvent(event);
-                                }
-                            });
+                            post(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        parent.dispatchTouchEvent(event);
+                                    }
+                                });
                             return false;
                         }
                         // Even when this can't be scrolled anymore,
@@ -220,12 +217,12 @@ public class ObservableListView extends ListView implements Scrollable {
 
     @Override
     public void scrollVerticallyTo(int y) {
-        View firstVisibleChild = getChildAt(0);
-        if (firstVisibleChild != null) {
-            int baseHeight = firstVisibleChild.getHeight();
-            int position = y / baseHeight;
-            setSelection(position);
-        }
+        setSelectionFromTop(0, -y);
+    }
+
+    @Override
+    public void scrollVerticallyBy(final int y) {
+        setSelectionFromTop(0, -(mScrollY + y));
     }
 
     @Override
@@ -293,7 +290,7 @@ public class ObservableListView extends ListView implements Scrollable {
                     mScrollY = mPrevScrolledChildrenHeight - firstVisibleChild.getTop();
                     mPrevFirstVisiblePosition = firstVisiblePosition;
 
-                    mCallbacks.onScrollChanged(mScrollY, mFirstScroll, mDragging);
+                    mCallbacks.onScrollChanged(this, mScrollY, mFirstScroll, mDragging);
                     if (mFirstScroll) {
                         mFirstScroll = false;
                     }
@@ -366,7 +363,7 @@ public class ObservableListView extends ListView implements Scrollable {
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+            = new Parcelable.Creator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);

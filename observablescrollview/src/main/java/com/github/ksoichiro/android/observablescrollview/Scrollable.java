@@ -38,6 +38,8 @@ public interface Scrollable {
      */
     void scrollVerticallyTo(int y);
 
+    void scrollVerticallyBy(int y);
+
     /**
      * Returns the current Y of the scrollable view.
      *

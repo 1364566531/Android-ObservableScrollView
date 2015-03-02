@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.1.0'
     }
 }
 
@@ -19,12 +19,12 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:21.0.2'
+    compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.nineoldandroids:library:2.4.0'
     compile 'com.melnykov:floatingactionbutton:1.0.7'
-    debugCompile project(':observablescrollview')
+    compile project(':observablescrollview')
     // Release build uses the synced latest version
-    releaseCompile "com.github.ksoichiro:android-observablescrollview:${SYNCED_VERSION_NAME}"
+    //releaseCompile "com.github.ksoichiro:android-observablescrollview:${SYNCED_VERSION_NAME}"
 
     // for using SNAPSHOT
     //compile "com.github.ksoichiro:android-observablescrollview:$VERSION_NAME"
@@ -35,7 +35,7 @@ project.ext.versionInfo.releaseVersionName = SYNCED_VERSION_NAME
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "com.github.ksoichiro.android.observablescrollview.samples"

@@ -26,6 +26,7 @@ import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCal
 import com.github.ksoichiro.android.observablescrollview.ObservableWebView;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.ViewPropertyAnimator;
 
@@ -59,7 +60,7 @@ public class StickyHeaderWebViewActivity extends BaseActivity {
 
     private ObservableScrollViewCallbacks mScrollViewScrollCallbacks = new ObservableScrollViewCallbacks() {
         @Override
-        public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+        public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
             if (mDragging) {
                 int toolbarHeight = mToolbarView.getHeight();
                 if (mFirstScroll) {
@@ -76,7 +77,7 @@ public class StickyHeaderWebViewActivity extends BaseActivity {
         }
 
         @Override
-        public void onDownMotionEvent() {
+        public void onDownMotionEvent(final Scrollable scrollable) {
         }
 
         @Override
@@ -107,11 +108,11 @@ public class StickyHeaderWebViewActivity extends BaseActivity {
 
     private ObservableScrollViewCallbacks mWebViewScrollCallbacks = new ObservableScrollViewCallbacks() {
         @Override
-        public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+        public void onScrollChanged(Scrollable scrollable, int scrollY, boolean firstScroll, boolean dragging) {
         }
 
         @Override
-        public void onDownMotionEvent() {
+        public void onDownMotionEvent(final Scrollable scrollable) {
             // Workaround: WebView inside a ScrollView absorbs down motion events, so observing
             // down motion event from the WebView is required.
             mFirstScroll = mDragging = true;

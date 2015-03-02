@@ -122,7 +122,7 @@ public class ObservableGridView extends GridView implements Scrollable {
                     // Also, applications might implement initialization codes to onDownMotionEvent,
                     // so call it here.
                     mFirstScroll = mDragging = true;
-                    mCallbacks.onDownMotionEvent();
+                    mCallbacks.onDownMotionEvent(this);
                     break;
             }
         }
@@ -224,6 +224,11 @@ public class ObservableGridView extends GridView implements Scrollable {
     }
 
     @Override
+    public void scrollVerticallyBy(final int y) {
+        scrollBy(0, y);
+    }
+
+    @Override
     public int getCurrentScrollY() {
         return mScrollY;
     }
@@ -278,7 +283,7 @@ public class ObservableGridView extends GridView implements Scrollable {
                     mScrollY = mPrevScrolledChildrenHeight - firstVisibleChild.getTop();
                     mPrevFirstVisiblePosition = firstVisiblePosition;
 
-                    mCallbacks.onScrollChanged(mScrollY, mFirstScroll, mDragging);
+                    mCallbacks.onScrollChanged(this, mScrollY, mFirstScroll, mDragging);
                     if (mFirstScroll) {
                         mFirstScroll = false;
                     }

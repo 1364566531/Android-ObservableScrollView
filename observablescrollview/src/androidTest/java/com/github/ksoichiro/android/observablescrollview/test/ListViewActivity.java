@@ -7,6 +7,7 @@ import android.widget.AbsListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableListView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
 
 public class ListViewActivity extends Activity implements ObservableScrollViewCallbacks {
 
@@ -33,7 +34,7 @@ public class ListViewActivity extends Activity implements ObservableScrollViewCa
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

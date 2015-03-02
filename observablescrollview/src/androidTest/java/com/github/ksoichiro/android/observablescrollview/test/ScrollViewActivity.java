@@ -3,7 +3,6 @@ package com.github.ksoichiro.android.observablescrollview.test;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
 import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
 import com.github.ksoichiro.android.observablescrollview.ScrollState;
 import com.github.ksoichiro.android.observablescrollview.Scrollable;
@@ -22,7 +21,7 @@ public class ScrollViewActivity extends Activity implements ObservableScrollView
     }
 
     @Override
-    public void onDownMotionEvent() {
+    public void onDownMotionEvent(final Scrollable scrollable) {
     }
 
     @Override

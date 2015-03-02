@@ -12,6 +12,10 @@ allprojects {
     version = VERSION_NAME
     repositories {
         mavenCentral()
+        mavenLocal()
+        maven {
+            url "${project.rootDir}/mvn-repo/release"
+        }
     }
 }
 
